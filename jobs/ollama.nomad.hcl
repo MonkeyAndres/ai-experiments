@@ -23,21 +23,40 @@ job "ollama" {
       }
     }
 
+    volume "ollama-models" {
+      type      = "host"
+      read_only = false
+      source    = "ollama-models"
+    }
+
     task "ollama-task" {
       driver = "docker"
 
       config {
-        image = "ollama/ollama"
+        image = "ollama/ollama:rocm"
         ports = ["ollama"]
 
-        volumes = [
-          "ollama:/root/.ollama",
+        devices = [
+          {
+            host_path      = "/dev/kfd"
+            container_path = "/dev/kfd"
+          },
+          {
+            host_path      = "/dev/dri"
+            container_path = "/dev/dri"
+          }
         ]
       }
 
+      volume_mount {
+        volume      = "ollama-models"
+        destination = "/root/.ollama"
+        read_only   = false
+      }
+
       resources {
-        cpu = 1000
-        memory = 4096
+        cores  = 8
+        memory = 16000
       }
     }
   }
