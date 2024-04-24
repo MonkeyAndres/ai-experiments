@@ -1,2 +1,6 @@
 ollama
 open-webui
+
+# Chroma DB
+*.bin
+*.sqlite3
