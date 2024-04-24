@@ -3,18 +3,28 @@ version: '3.8'
 services:
   ollama:
     volumes:
-      - /usr/share/ollama/.ollama:/root/.ollama
+      - ./ollama:/root/.ollama
+    image: ollama/ollama:0.1.27-rocm
     container_name: ollama
-    pull_policy: always
-    tty: true
     restart: unless-stopped
-    image: ollama/ollama:latest
+    ports:
+      - 11434:11434
+    devices:
+      - /dev/dri
+      - /dev/kfd
+    group_add:
+      - video
+    tty: true
+    environment:
+      - HSA_OVERRIDE_GFX_VERSION=9.0.0
+      - HCC_AMDGPU_TARGETS=gfx900
+#      - OLLAMA_ORIGINS="app://obsidian.md*"
 
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
     container_name: open-webui
     volumes:
-      - open-webui:/app/backend/data
+      - ./open-webui:/app/backend/data
     depends_on:
       - ollama
     ports:
@@ -22,9 +32,4 @@ services:
     environment:
       - 'OLLAMA_BASE_URL=http://ollama:11434'
       - 'WEBUI_SECRET_KEY='
-    extra_hosts:
-      - host.docker.internal:host-gateway
     restart: unless-stopped
-
-volumes:
-  open-webui: {}
