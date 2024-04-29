@@ -4,9 +4,10 @@ services:
   ollama:
     volumes:
       - ./ollama:/root/.ollama
-    image: ollama/ollama:0.1.27-rocm
+    image: ollama/ollama:rocm
     container_name: ollama
     restart: unless-stopped
+    # network_mode: host
     ports:
       - 11434:11434
     devices:
@@ -16,9 +17,9 @@ services:
       - video
     tty: true
     environment:
+      - HSA_ENABLE_SDMA=0
       - HSA_OVERRIDE_GFX_VERSION=9.0.0
       - HCC_AMDGPU_TARGETS=gfx900
-#      - OLLAMA_ORIGINS="app://obsidian.md*"
 
   open-webui:
     image: ghcr.io/open-webui/open-webui:main
